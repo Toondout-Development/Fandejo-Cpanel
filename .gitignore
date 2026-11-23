@@ -1,0 +1,20 @@
+# OS / Editor artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# Build artifacts & temporary files
+*.rpm
+*.tar.gz
+build/
+dist/
+rpmbuild/
+
+# User data & local configs
+config.php
+*.log
+data/
+cache/

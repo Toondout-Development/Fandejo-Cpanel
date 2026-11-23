@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="fandejoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+  </defs>
+  <!-- Background plate -->
+  <rect x="2" y="2" width="44" height="44" rx="12" fill="#0D0F12" stroke="#262C36" stroke-width="2"/>
+  
+  <!-- Anvil horn / foundry top -->
+  <path d="M10 14h28l-3 6H13z" fill="url(#fandejoGrad)" />
+  
+  <!-- Core ingot bars (database layers) -->
+  <rect x="13" y="23" width="22" height="4.5" rx="2.25" fill="#F59E0B" />
+  <rect x="16" y="30.5" width="16" height="4.5" rx="2.25" fill="url(#blueGrad)" />
+</svg>

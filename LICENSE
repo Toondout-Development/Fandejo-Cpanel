@@ -1,0 +1,37 @@
+Fandejo Source-Available & Free-Use License
+Version 1.0 — Author: Toondout (https://toondout.com)
+
+Copyright (c) 2026 Toondout. All rights reserved.
+
+Permission is hereby granted, free of charge, to any person or organization obtaining
+a copy of this software and associated documentation files (the "Software"), to download,
+install, execute, test, and use the Software without restriction, subject to the following
+conditions:
+
+1. FREE FOR PERSONAL AND COMMERCIAL USE:
+   You may freely install and use the Software on any number of servers or environments,
+   including personal, corporate, internal, and web hosting platforms (including cPanel,
+   WHM, and CloudLinux environments).
+
+2. CONTRIBUTIONS AND SOURCE AVAILABILITY:
+   The source code is openly available. You may inspect, modify, and submit pull requests
+   or contributions to the official canonical repositories.
+
+3. REDISTRIBUTION RESTRICTION:
+   You may NOT redistribute, re-publish, fork under a different name, re-license, or sub-license
+   the Software as a standalone commercial product, nor remove or alter any copyright, trademark,
+   or author notices attributed to Toondout.
+
+4. HOSTING & CONTROL PANEL INTEGRATION:
+   Web hosting providers, cloud providers, and system administrators are expressly authorized
+   to install, provision, and enable this Software on multi-tenant control panel servers
+   (such as cPanel/WHM) for their hosted end-users free of charge, provided the branding
+   and attribution to Toondout remain intact.
+
+5. DISCLAIMER OF WARRANTY:
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+   FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+   DEALINGS IN THE SOFTWARE.

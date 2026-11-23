@@ -1,0 +1,3 @@
+# WHM Feature Manager definition for Fandejo
+# Installed to: /var/cpanel/features/fandejo
+fandejo=1
