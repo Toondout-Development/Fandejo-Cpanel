@@ -1,6 +1,6 @@
 # Fandejo cPanel Plugin
 
-Official cPanel & WHM integration plugin for **Fandejo** - the fast, modern database workbench for MariaDB, MySQL, and SQLite3 developed by [Toondout Development](https://toondout.com).
+Official cPanel & WHM integration plugin for **Fandejo** - the fast, modern database workbench for MariaDB, MySQL, and SQLite3 developed by [Toondout Development](https://www.toondout.com).
 
 ## Overview
 
@@ -50,4 +50,4 @@ sudo ./scripts/uninstall.sh
 ## License
 
 Released under the [Fandejo Source-Available & Free-Use License](LICENSE).
-Author: [Toondout Development](https://toondout.com)
+Author: [Toondout Development](https://www.toondout.com)
