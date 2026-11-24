@@ -71,6 +71,15 @@ class FandejoCpanelBridge {
             @mkdir($targetDir, 0700, true);
         }
 
+        // Isolate session storage inside tenant directory to avoid shared /var/lib/php/sessions permission issues
+        $sessDir = "{$targetDir}/sessions";
+        if (!is_dir($sessDir)) {
+            @mkdir($sessDir, 0700, true);
+        }
+        if (!headers_sent() && session_status() === PHP_SESSION_NONE && is_dir($sessDir) && is_writable($sessDir)) {
+            ini_set('session.save_path', $sessDir);
+        }
+
         // Ensure environment overrides are set for Fandejo's core API
         $cfgFile = "{$targetDir}/config.php";
         $locksFile = "{$targetDir}/locks.json";

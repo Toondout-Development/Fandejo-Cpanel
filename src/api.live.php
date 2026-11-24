@@ -1001,6 +1001,26 @@ if ($a === 'session') {
             $_SESSION['c']['last_active'] = $now;
         }
     }
+    if (!$ok) {
+        $sso = FandejoCpanelBridge::attemptSocketSSO();
+        if ($sso !== null) {
+            $c = [
+                'driver' => 'mysql',
+                'host' => 'localhost',
+                'port' => 3306,
+                'user' => $sso['user'],
+                'socket' => $sso['socket'],
+                'db' => '',
+                'sealed_pass' => seal_secret(''),
+                'fp' => session_fingerprint(),
+                'created_at' => time(),
+                'last_active' => time(),
+            ];
+            $_SESSION['c'] = $c;
+            $_SESSION['csrf'] = bin2hex(random_bytes(16));
+            $ok = true;
+        }
+    }
     if (!$ok && isset($_SESSION['c'])) clear_auth();
     out([
         'auth' => $ok,

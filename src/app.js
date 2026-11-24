@@ -53,7 +53,7 @@ function showLicenseModal() {
 }
 
 async function api(a, body = {}) {
-    const r = await fetch('api.php?a=' + a, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF': csrf }, body: JSON.stringify(body) });
+    const r = await fetch('api.live.php?a=' + a, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF': csrf }, body: JSON.stringify(body) });
     const j = await r.json().catch(() => ({ error: 'Invalid server response' }));
     if (!r.ok || j.error) { if (r.status === 401 && a !== 'login') return boot(); throw new Error(j.error || 'Request failed'); }
     return j;
@@ -118,10 +118,10 @@ window.addEventListener('hashchange', guard(async () => {
 }));
 
 async function boot() {
-    const s = await (await fetch('api.php?a=session')).json();
+    const s = await (await fetch('api.live.php?a=session')).json();
     if (s.version) S.version = s.version;
     if (!s.auth) return loginView(s);
-    csrf = (await (await fetch('api.php?a=csrf')).json()).csrf;
+    csrf = (await (await fetch('api.live.php?a=csrf')).json()).csrf;
     S.driver = s.driver; S.user = s.user; S.sqliteDirs = s.sqlite_dirs || [];
     await loadDbs();
     suppressHashSync = true;
@@ -1702,7 +1702,7 @@ async function exportView() {
 function compExt(comp) { return comp === 'gzip' ? '.gz' : comp === 'zip' ? '.zip' : ''; }
 async function exportSQL(o) {
     const dbUse = o.db || S.db;
-    const res = await fetch('api.php?a=export_sql', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF': csrf }, body: JSON.stringify({ db: dbUse, table: S.table, ...o }) });
+    const res = await fetch('api.live.php?a=export_sql', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF': csrf }, body: JSON.stringify({ db: dbUse, table: S.table, ...o }) });
     const ct = res.headers.get('Content-Type') || '';
     if (!ct.includes('application/sql') && !ct.includes('application/gzip') && !ct.includes('application/zip')) { const j = await res.json().catch(() => ({})); throw new Error(j.error || 'SQL export failed'); }
     const fname = (o.table || dbUse || 'export').replace(/^@\d+:/, '');
@@ -1710,7 +1710,7 @@ async function exportSQL(o) {
 }
 async function exportCSV(o) {
     const dbUse = o.db || S.db;
-    const res = await fetch('api.php?a=export_csv', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF': csrf }, body: JSON.stringify({ db: dbUse, ...o }) });
+    const res = await fetch('api.live.php?a=export_csv', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF': csrf }, body: JSON.stringify({ db: dbUse, ...o }) });
     const ct = res.headers.get('Content-Type') || '';
     if (!ct.includes('text/csv') && !ct.includes('application/gzip') && !ct.includes('application/zip')) { const j = await res.json().catch(() => ({})); throw new Error(j.error || 'Export failed'); }
     download(await res.blob(), o.table + '.csv' + compExt(o.compress)); toast('CSV downloaded');
@@ -1756,7 +1756,7 @@ async function importView() {
             const fd = new FormData();
             fd.append('db', targetDb || '');
             fd.append('file', f);
-            const res = await fetch('api.php?a=import_sql_file', { method: 'POST', headers: { 'X-CSRF': csrf }, body: fd });
+            const res = await fetch('api.live.php?a=import_sql_file', { method: 'POST', headers: { 'X-CSRF': csrf }, body: fd });
             const r = await res.json().catch(() => ({ error: 'Invalid server response' }));
             if (r.error && r.ok === undefined) throw new Error(r.error);
             $('#res').innerHTML = !r.ok
@@ -1779,7 +1779,7 @@ async function importView() {
             const fd = new FormData();
             fd.append('db', targetDb || '');
             fd.append('file', f);
-            const res = await fetch('api.php?a=decompress_file', { method: 'POST', headers: { 'X-CSRF': csrf }, body: fd });
+            const res = await fetch('api.live.php?a=decompress_file', { method: 'POST', headers: { 'X-CSRF': csrf }, body: fd });
             const r = await res.json().catch(() => ({ error: 'Decompression failed' }));
             if (!res.ok || r.error) throw new Error(r.error || 'Decompression failed');
             csvWizard(r.text, r.name || f.name, tbls);
