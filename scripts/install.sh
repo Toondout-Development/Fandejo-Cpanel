@@ -2,7 +2,7 @@
 # ==============================================================================
 # Fandejo cPanel Plugin Installer
 # Installs and registers Fandejo for cPanel & WHM (Jupiter theme)
-# Author: Toondout (https://toondout.com)
+# Author: Toondout (https://www.toondout.com)
 # ==============================================================================
 
 set -euo pipefail

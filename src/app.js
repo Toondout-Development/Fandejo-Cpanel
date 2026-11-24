@@ -42,12 +42,12 @@ const S = { version: 'v1.0.2', driver: null, user: null, dbs: [], tables: {}, me
 function showLicenseModal() {
     modal(`<div style="width:min(580px,85vw)"><h3>Fandejo ${esc(S.version)} — License & Attribution</h3>
       <div class="doc-body" style="font-size:13px;color:var(--mute)">
-        <p style="color:var(--text)"><b>Copyright © 2026 <a href="https://toondout.com" target="_blank" rel="noopener" style="color:var(--accent)">Toondout</a>.</b> Canonical repository: <a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener" style="color:var(--cyan)">github.com/Toondout-Development/Fandejo</a></p>
+        <p style="color:var(--text)"><b>Copyright © 2026 <a href="https://www.toondout.com" target="_blank" rel="noopener" style="color:var(--accent)">Toondout</a>.</b> Canonical repository: <a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener" style="color:var(--cyan)">github.com/Toondout-Development/Fandejo</a></p>
         <p><b>Free to Use:</b> Fandejo is free to download, install, and run for personal, educational, internal business, or commercial database administration.</p>
         <p><b>Contributions Welcome:</b> Personal/internal forks and Pull Requests back to <a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener" style="color:var(--cyan)">Toondout-Development/Fandejo</a> are encouraged.</p>
         <p><b>No Public Redistribution or Rebranding:</b> Redistributing modified or rebranded copies, or offering Fandejo as a third-party hosted service without prior written permission from Toondout, is prohibited. See the repository <code>LICENSE</code> file for full terms.</p>
       </div>
-    </div>`, () => {});
+    </div>`, () => { });
     const cancelBtn = $('#mx');
     if (cancelBtn) cancelBtn.style.display = 'none';
 }
@@ -145,7 +145,7 @@ function loginView(s = {}) {
     <label>Username<input name="user" value="${needSetup ? 'admin' : 'root'}" required></label>
     <label>Password<input name="pass" type="password" placeholder="${needSetup ? 'Min 6 characters for SQLite setup' : ''}"></label>
     <button class="primary" id="lbtn">Sign in</button>
-    <div class="brand-foot"><span>© 2026 <a href="https://toondout.com" target="_blank" rel="noopener">Toondout</a></span><span><a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener">GitHub</a> · <a href="#" id="l-lic">License</a></span></div></form></div>`;
+    <div class="brand-foot"><span>© 2026 <a href="https://www.toondout.com" target="_blank" rel="noopener">Toondout</a></span><span><a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener">GitHub</a> · <a href="#" id="l-lic">License</a></span></div></form></div>`;
     const lic = $('#l-lic');
     if (lic) lic.onclick = e => { e.preventDefault(); showLicenseModal(); };
     const f = $('#lf');
@@ -175,14 +175,14 @@ function promptNewDb() {
       ${!my && dirs.length > 1 ? `<label>Target Sandbox Directory<select name="dir_idx">${dirs.map((d, i) => `<option value="${i}">${esc(d)}</option>`).join('')}</select></label>` : ''}
       <label>${my ? 'Name' : 'File name'}<input name="name" placeholder="${my ? 'my_database' : 'app_data.sqlite'}" required autofocus></label>
       ${my ? `<label>Default Collation<select name="collation">${collSelectOpts(getPrefs().collation)}</select></label>`
-           : `<small style="color:var(--mute)">Created inside ${dirs.length > 1 ? 'the selected' : 'sandbox'} directory (<code>.sqlite</code> added automatically if omitted).</small>`}`, async v => {
-        if (!my && v.dir_idx && +v.dir_idx > 0) v.name = `@${v.dir_idx}:${v.name}`;
-        const r = await api('create_db', v);
-        await loadDbs();
-        S.db = (!my && v.dir_idx && +v.dir_idx > 0) ? `@${v.dir_idx}:${r.name}` : (r.name || v.name);
-        S.table = null; S.tab = 'tables';
-        await loadTables(S.db); layout(); toast('Database created');
-    });
+            : `<small style="color:var(--mute)">Created inside ${dirs.length > 1 ? 'the selected' : 'sandbox'} directory (<code>.sqlite</code> added automatically if omitted).</small>`}`, async v => {
+                if (!my && v.dir_idx && +v.dir_idx > 0) v.name = `@${v.dir_idx}:${v.name}`;
+                const r = await api('create_db', v);
+                await loadDbs();
+                S.db = (!my && v.dir_idx && +v.dir_idx > 0) ? `@${v.dir_idx}:${r.name}` : (r.name || v.name);
+                S.table = null; S.tab = 'tables';
+                await loadTables(S.db); layout(); toast('Database created');
+            });
 }
 async function manageSqliteDirs() {
     const r = await api('sqlite_dirs');
@@ -207,7 +207,7 @@ async function manageSqliteDirs() {
         row.style.marginBottom = '6px';
         const badge = d.exists === null ? ''
             : !d.exists ? `<span class="badge warn" title="Directory does not exist">missing</span>`
-            : `<span class="badge ${d.writable ? '' : 'warn'}" title="${d.writable ? 'Readable & writable' : 'Read-only for PHP'}">${d.files} db · ${d.writable ? 'rw' : 'ro'}</span>`;
+                : `<span class="badge ${d.writable ? '' : 'warn'}" title="${d.writable ? 'Readable & writable' : 'Read-only for PHP'}">${d.files} db · ${d.writable ? 'rw' : 'ro'}</span>`;
         row.innerHTML = `<input class="sd-inp" value="${esc(d.path)}" placeholder="/var/www/data" style="flex:1;font-family:ui-monospace,monospace">${badge}<button type="button" class="ghost danger" title="Remove directory">✕</button>`;
         row.querySelector('button').onclick = () => { if (host.children.length > 1) row.remove(); };
         host.append(row);
@@ -220,7 +220,7 @@ function layout() {
       <button class="ghost" id="theme" title="Toggle Dark / Light theme">◐</button><button class="ghost" id="out" title="Sign out">⏻</button></span></div>
       <input class="search" id="flt" placeholder="Filter…" value="${esc(S.filter)}"><div class="tree" id="tree"></div>
       <div style="padding:10px;display:flex;flex-direction:column;gap:8px"><button id="newdb" style="width:100%">+ New database</button>
-      <div class="brand-foot"><span>${esc(S.version)} · © <a href="https://toondout.com" target="_blank" rel="noopener">Toondout</a></span><span><a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener">GitHub</a> · <a href="#" id="s-lic">License</a></span></div></div></aside>
+      <div class="brand-foot"><span>${esc(S.version)} · © <a href="https://www.toondout.com" target="_blank" rel="noopener">Toondout</a></span><span><a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener">GitHub</a> · <a href="#" id="s-lic">License</a></span></div></div></aside>
       <main><div class="top"><div class="crumbs" id="crumbs"></div><button id="ghome">⌂ Home</button><button id="gusers">Users</button><button id="gsql">SQL</button></div><div id="tabs" class="tabs"></div><div class="content" id="content"></div></main></div>`;
     if ($('#s-lic')) $('#s-lic').onclick = e => { e.preventDefault(); showLicenseModal(); };
     $('#theme').onclick = () => { const r = document.documentElement; r.dataset.theme = r.dataset.theme === 'light' ? '' : 'light'; localStorage.theme = r.dataset.theme; };
@@ -340,16 +340,16 @@ async function browse() {
       <select id="per">${[25, 50, 100, 250].map(n => `<option ${n === r.per ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
       ${filterBarHtml}
       <div class="tw"><table><tr>${r.rows.length ? `<th style="width:1%;cursor:default"><input type="checkbox" id="sel-all" title="Select all rows on this page"></th>` : ''}${canEdit ? '<th></th>' : ''}${r.columns.map(c => {
-          const fk = fkMap[c];
-          const fkIcon = fk ? `<span style="color:var(--cyan)" title="Foreign key → ${esc(fk.ref_table)}.${esc(fk.ref_col)}">🔗</span> ` : '';
-          return `<th data-c="${esc(c)}">${r.pk.includes(c) ? '<span class="pk" title="Primary key">🔑</span> ' : (uk.includes(c) ? '<span class="pk" title="Unique key">◈</span> ' : '')}${fkIcon}${esc(c)}${B.sort === c ? (B.dir === 'asc' ? ' ▲' : ' ▼') : ''}</th>`;
-      }).join('')}</tr>
+        const fk = fkMap[c];
+        const fkIcon = fk ? `<span style="color:var(--cyan)" title="Foreign key → ${esc(fk.ref_table)}.${esc(fk.ref_col)}">🔗</span> ` : '';
+        return `<th data-c="${esc(c)}">${r.pk.includes(c) ? '<span class="pk" title="Primary key">🔑</span> ' : (uk.includes(c) ? '<span class="pk" title="Unique key">◈</span> ' : '')}${fkIcon}${esc(c)}${B.sort === c ? (B.dir === 'asc' ? ' ▲' : ' ▼') : ''}</th>`;
+    }).join('')}</tr>
       ${r.rows.map((row, i) => `<tr data-ri="${i}"><td><input type="checkbox" class="rchk" data-i="${i}"></td>${canEdit ? `<td class="act"><button class="ghost" data-e="${i}" title="Edit row">✎</button><button class="ghost" data-cp="${i}" title="Copy / duplicate row">⧉</button><button class="ghost danger" data-x="${i}" title="Delete row">🗑</button></td>` : ''}${r.columns.map(c => {
-          if (row[c] === null) return `<td class="null" data-cell="${i}" data-col="${esc(c)}" title="${canEdit ? 'Double-click to edit inline' : ''}">NULL</td>`;
-          const fk = fkMap[c];
-          const fkLink = fk ? ` <a href="#" class="crumb" data-fk-col="${esc(c)}" data-fk-val="${esc(row[c])}" title="Jump to ${esc(fk.ref_table)}.${esc(fk.ref_col)} = ${esc(row[c])}" style="font-size:11px;margin-left:4px">↗</a>` : '';
-          return `<td data-cell="${i}" data-col="${esc(c)}" title="${esc(row[c])}${canEdit ? ' (Double-click to edit)' : ''}">${esc(row[c])}${fkLink}</td>`;
-      }).join('')}</tr>`).join('')}</table></div>
+        if (row[c] === null) return `<td class="null" data-cell="${i}" data-col="${esc(c)}" title="${canEdit ? 'Double-click to edit inline' : ''}">NULL</td>`;
+        const fk = fkMap[c];
+        const fkLink = fk ? ` <a href="#" class="crumb" data-fk-col="${esc(c)}" data-fk-val="${esc(row[c])}" title="Jump to ${esc(fk.ref_table)}.${esc(fk.ref_col)} = ${esc(row[c])}" style="font-size:11px;margin-left:4px">↗</a>` : '';
+        return `<td data-cell="${i}" data-col="${esc(c)}" title="${esc(row[c])}${canEdit ? ' (Double-click to edit)' : ''}">${esc(row[c])}${fkLink}</td>`;
+    }).join('')}</tr>`).join('')}</table></div>
       ${r.rows.length ? '' : '<div class="empty">No rows</div>'}`;
     $('#bs').onkeydown = e => { if (e.key === 'Enter') { B.search = e.target.value; B.page = 1; render(); } };
     $('#btf').onclick = () => { B.showFilterBar = !B.showFilterBar; render(); };
@@ -1169,10 +1169,12 @@ function columnEditor(cols, col) {
     f('default_mode').value = c.def.mode;
     const body = () => {
         const t = f('type').value;
-        return { db: S.db, table: S.table, column: c.name, name: f('name').value, type: t, length: f('length').value, values: f('values').value.split('\n').map(x => x.trim()).filter(Boolean),
+        return {
+            db: S.db, table: S.table, column: c.name, name: f('name').value, type: t, length: f('length').value, values: f('values').value.split('\n').map(x => x.trim()).filter(Boolean),
             null: f('null').checked, unsigned: my && f('unsigned').checked, ai: my && f('ai').checked, on_update: my && f('on_update').checked,
             default_mode: f('default_mode').value, default: f('default').value,
-            collation: my ? f('collation').value : '', comment: my ? f('comment').value : '', after: my ? f('after').value : '' };
+            collation: my ? f('collation').value : '', comment: my ? f('comment').value : '', after: my ? f('after').value : ''
+        };
     };
     const sync = () => {
         const t = f('type').value, isDT = ['DATE', 'TIME', 'DATETIME', 'TIMESTAMP', 'YEAR'].includes(t);
@@ -1511,7 +1513,7 @@ async function ops() {
             <button data-maint="analyze">📊 Analyze Table</button>
             <button data-maint="optimize">⚡ Optimize Table</button>
             <button data-maint="repair">🔧 Repair Table</button>`
-          : `<button data-maint="integrity_check">🔍 Integrity Check</button>
+            : `<button data-maint="integrity_check">🔍 Integrity Check</button>
             <button data-maint="foreign_key_check">🔗 Foreign Key Check</button>
             <button data-maint="analyze">📊 Analyze Statistics</button>
             <button data-maint="vacuum">⚡ Vacuum Database</button>`}
@@ -2032,9 +2034,9 @@ async function users() {
 
     C().innerHTML = `${lockBanner}<div class="acct-layout"><div class="acct-list"><div class="bar"><input id="uf" placeholder="Find account…" value="${esc(S.userFilter || '')}" style="flex:1"><button class="primary" id="nu">+ New</button></div>
       ${r.users.filter(u => !q || acctKey(u).toLowerCase().includes(q)).map(u => {
-          const isLocked = u.fandejo_locked || u.db_locked;
-          return `<div class="acct ${acctKey(u) === S.acct ? 'active' : ''}" data-k="${esc(acctKey(u))}"><div class="avatar">${esc((u.user || '?')[0].toUpperCase())}</div><div style="min-width:0"><div class="nm">${esc(u.user || '(anonymous)')}</div><small>@${esc(u.host)}</small></div>${isLocked ? '<span class="lvl lvl-global" style="margin-left:auto" title="Account has an active lockout">🔒 locked</span>' : (risk(u) === 'admin' ? '<span class="badge warn">admin</span>' : (u.failed_attempts ? `<span class="badge warn" title="${u.failed_attempts} failed sign-in attempt(s)">${u.failed_attempts} fail</span>` : ''))}</div>`;
-      }).join('')}</div>
+        const isLocked = u.fandejo_locked || u.db_locked;
+        return `<div class="acct ${acctKey(u) === S.acct ? 'active' : ''}" data-k="${esc(acctKey(u))}"><div class="avatar">${esc((u.user || '?')[0].toUpperCase())}</div><div style="min-width:0"><div class="nm">${esc(u.user || '(anonymous)')}</div><small>@${esc(u.host)}</small></div>${isLocked ? '<span class="lvl lvl-global" style="margin-left:auto" title="Account has an active lockout">🔒 locked</span>' : (risk(u) === 'admin' ? '<span class="badge warn">admin</span>' : (u.failed_attempts ? `<span class="badge warn" title="${u.failed_attempts} failed sign-in attempt(s)">${u.failed_attempts} fail</span>` : ''))}</div>`;
+    }).join('')}</div>
       <div class="acct-detail" id="ad"></div></div>`;
     $('#uf').oninput = e => { S.userFilter = e.target.value; users(); setTimeout(() => { const i = $('#uf'); i.focus(); i.setSelectionRange(99, 99); }); };
     C().querySelectorAll('.acct').forEach(el => el.onclick = () => { S.acct = el.dataset.k; users(); });
@@ -2061,7 +2063,7 @@ async function accountDetail(u, me, isAdmin = true, maxAttempts = 5) {
 
     const unlockBtnLabel = (u.fandejo_locked && u.db_locked) ? '🔓 Unlock Account & IPs'
         : (u.fandejo_locked ? '🔓 Unlock All IPs'
-        : (u.db_locked ? '🔓 Unlock Server Account' : 'Reset Counter'));
+            : (u.db_locked ? '🔓 Unlock Server Account' : 'Reset Counter'));
 
     const lockAlert = (u.fandejo_locked || u.db_locked || u.failed_attempts > 0) ? `<div class="msg ${isLocked ? 'err' : ''}" style="display:flex;align-items:center;gap:10px;margin-top:14px">
       <div style="flex:1">
@@ -2079,7 +2081,7 @@ async function accountDetail(u, me, isAdmin = true, maxAttempts = 5) {
       ${my ? `<div class="bar" style="margin-top:20px"><h3 style="margin:0">Privileges</h3><span class="spacer"></span><button class="primary" id="ap">+ Add privileges</button></div>
       ${g.scopes.length ? g.scopes.map((s, i) => `<div class="scope"><div class="scope-top"><span class="lvl lvl-${scopeLevel(s).toLowerCase()}">${scopeLevel(s)}</span><b>${esc(scopeLabel(s))}</b><span class="spacer"></span>${s.option ? '<span class="badge warn">GRANT OPTION</span>' : ''}<button class="ghost" data-e="${i}">Edit</button><button class="ghost danger" data-r="${i}">Revoke all</button></div>
         <div class="chips">${s.all ? '<span class="chip all">ALL PRIVILEGES</span>' : s.privs.map(x => `<span class="chip">${esc(x)}</span>`).join('') || '<span class="chip none">USAGE (no privileges)</span>'}${s.columns.map(x => `<span class="chip col" title="Column-level (read-only here)">${esc(x)}</span>`).join('')}${s.other.map(x => `<span class="chip col" title="Not editable here">${esc(x)}</span>`).join('')}</div></div>`).join('') : '<div class="empty">This account has no privileges</div>'}`
-      : `<div class="scope" style="margin-top:18px"><div class="scope-top"><span class="lvl lvl-global">SQLite Catalog</span><b>All sandboxed SQLite directories</b></div><div class="chips"><span class="chip all">FULL SANDBOX ACCESS</span><span class="chip">Argon2id Auth</span></div></div>`}`;
+            : `<div class="scope" style="margin-top:18px"><div class="scope-top"><span class="lvl lvl-global">SQLite Catalog</span><b>All sandboxed SQLite directories</b></div><div class="chips"><span class="chip all">FULL SANDBOX ACCESS</span><span class="chip">Argon2id Auth</span></div></div>`}`;
     const reload = () => users();
     if ($('#u-unlock')) $('#u-unlock').onclick = guard(async () => {
         await api('unlock_account', { user: u.user, host: u.host, driver: S.driver, db_unlock: !!u.db_locked });
@@ -2159,8 +2161,8 @@ async function processesView() {
     <div class="tw"><table>
       <tr><th>ID</th><th>User</th><th>Host</th><th>Database</th><th>Command</th><th>Time (s)</th><th>State</th><th>Query / Info</th><th></th></tr>
       ${shown.map(p => {
-          const isMe = +p.Id === +r.my_id;
-          return `<tr>
+        const isMe = +p.Id === +r.my_id;
+        return `<tr>
             <td><b>${esc(p.Id)}</b>${isMe ? ' <span class="badge">you</span>' : ''}</td>
             <td>${esc(p.User)}</td>
             <td><code>${esc(p.Host)}</code></td>
@@ -2171,7 +2173,7 @@ async function processesView() {
             <td title="${esc(p.Info || '')}"><code>${esc(p.Info || '–')}</code></td>
             <td class="act">${!isMe ? `<button class="ghost" data-kq="${p.Id}" title="Cancel running query only (KILL QUERY)">⏹ Stop Query</button><button class="ghost danger" data-kp="${p.Id}" title="Disconnect thread (KILL CONNECTION)">✕ Kill</button>` : ''}</td>
           </tr>`;
-      }).join('')}
+    }).join('')}
     </table></div>`;
     $('#pl-ref').onclick = () => processesView();
     $('#pl-sleep').onchange = e => { S.hideSleepProcs = e.target.checked; processesView(); };
@@ -2248,7 +2250,7 @@ async function dbsHome() {
           ${my ? `<div class="kv"><span>Active Threads / Max</span><b>${info.threads} / ${info.max_connections} <a href="#" id="d-pl" class="crumb" style="margin-left:6px">View Processes →</a></b></div>
           <div class="kv"><span>Total Queries / Slow</span><b>${Number(info.questions).toLocaleString()} (${info.slow_queries} slow)</b></div>
           ${info.socket ? `<div class="kv"><span>Socket</span><b>${esc(info.socket)}</b></div>` : ''}`
-          : `<div class="kv"><span>Journal Mode</span><b>${esc(info.journal_mode)}</b></div>
+            : `<div class="kv"><span>Journal Mode</span><b>${esc(info.journal_mode)}</b></div>
           <div class="kv"><span>Foreign Keys</span><b>${info.foreign_keys_on ? 'Enabled' : 'Disabled'}</b></div>
           <div class="bar" style="margin-top:12px;margin-bottom:0"><button id="d-dirs">📁 Manage Sandbox Directories…</button></div>`}
         </div>
@@ -2350,7 +2352,7 @@ async function dbsHome() {
     C().querySelectorAll('[data-doc]').forEach(a => a.onclick = e => {
         e.preventDefault();
         const [title, body] = DOCS[a.dataset.doc];
-        modal(`<div style="width:min(620px,80vw)"><h3>${title}</h3><div class="doc-body">${body}</div></div>`, async () => {});
+        modal(`<div style="width:min(620px,80vw)"><h3>${title}</h3><div class="doc-body">${body}</div></div>`, async () => { });
     });
     C().querySelectorAll('.db-card').forEach(c => c.onclick = guard(async () => {
         S.db = c.dataset.db; S.table = null; S.tab = 'tables';

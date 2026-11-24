@@ -4,7 +4,7 @@ Release:        1%{?dist}
 Summary:        Fandejo Database Workbench integration for cPanel & WHM
 License:        Fandejo Free-Use License
 URL:            https://github.com/Toondout-Development/Fandejo
-Vendor:         Toondout <https://toondout.com>
+Vendor:         Toondout <https://www.toondout.com>
 BuildArch:      noarch
 
 Requires:       cpanel
@@ -79,5 +79,5 @@ fi
 /var/cpanel/features/fandejo
 
 %changelog
-* Mon Nov 23 2026 Toondout <https://toondout.com> - 1.0.0-1
+* Mon Nov 23 2026 Toondout <https://www.toondout.com> - 1.0.0-1
 - Initial release of Fandejo cPanel & WHM plugin

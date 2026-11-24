@@ -2,7 +2,7 @@
 # ==============================================================================
 # Fandejo cPanel Plugin Uninstaller
 # Cleanly unregisters and removes Fandejo from cPanel & WHM
-# Author: Toondout (https://toondout.com)
+# Author: Toondout (https://www.toondout.com)
 # ==============================================================================
 
 set -euo pipefail
