@@ -6,6 +6,8 @@
     "group": "databases",
     "order": 25,
     "uri": "fandejo/index.live.php",
+    "target": "_blank",
+    "a_contents": "target=\"_blank\"",
     "type": "link",
     "icon": "fandejo.svg",
     "name": "Fandejo",
