@@ -1,21 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
   <defs>
-    <linearGradient id="fandejoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#F59E0B" />
-      <stop offset="100%" stop-color="#EA580C" />
-    </linearGradient>
-    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38BDF8" />
-      <stop offset="100%" stop-color="#0284C7" />
-    </linearGradient>
+    <style>
+      .cls-base { fill: #2c3442; }
+      .cls-accent { fill: #ff6c2c; }
+    </style>
   </defs>
-  <!-- Background plate -->
-  <rect x="2" y="2" width="44" height="44" rx="12" fill="#0D0F12" stroke="#262C36" stroke-width="2"/>
-  
-  <!-- Anvil horn / foundry top -->
-  <path d="M10 14h28l-3 6H13z" fill="url(#fandejoGrad)" />
-  
-  <!-- Core ingot bars (database layers) -->
-  <rect x="13" y="23" width="22" height="4.5" rx="2.25" fill="#F59E0B" />
-  <rect x="16" y="30.5" width="16" height="4.5" rx="2.25" fill="url(#blueGrad)" />
+  <!-- Modern Foundry Anvil in Jupiter Theme Styling -->
+  <g id="Base_Icons" data-name="Base Icons">
+    <!-- Solid Anvil Silhouette: Base Feet, Curved Waist, Face, and Horn -->
+    <path class="cls-base" d="M 6,16 C 10.5,16 14.5,14 17,12 L 40,12 C 41.1,12 42,12.9 42,14 L 42,18 C 42,19.1 41.1,20 40,20 L 32.5,20 C 30.5,20 29,21.2 28,22.8 C 26.5,26.8 26.5,31.2 28,35.2 L 35,35.2 C 36.1,35.2 37,36.1 37,37.2 L 37,40 C 37,40.6 36.6,41 36,41 L 12,41 C 11.4,41 11,40.6 11,40 L 11,37.2 C 11,36.1 11.9,35.2 13,35.2 L 20,35.2 C 21.5,31.2 21.5,26.8 20,22.8 C 19,21.2 17.5,20 15.5,20 L 7,20 C 5.3,20 4,18.7 4,17 C 4,15.8 4.8,16 6,16 Z" />
+  </g>
+  <!-- Hot Molten Ingot / Database Accent in cPanel Orange -->
+  <g id="Sub_Icons" data-name="Sub Icons">
+    <rect class="cls-accent" x="21" y="14.5" width="17" height="3.5" rx="1.75" />
+    <circle class="cls-accent" cx="24" cy="28.5" r="1.5" />
+    <circle class="cls-accent" cx="28" cy="28.5" r="1.5" />
+  </g>
 </svg>
