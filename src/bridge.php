@@ -20,8 +20,24 @@ class FandejoCpanelBridge {
      * Bootstrap the cPanel environment.
      */
     public static function init(): void {
+        self::initLiveApi();
         self::detectUser();
         self::setupTenantStorage();
+    }
+
+    /**
+     * Connect to cPanel's internal LiveAPI socket if invoked via cpsrvd (.live.php wrapper).
+     */
+    public static function initLiveApi(): void {
+        if (file_exists('/usr/local/cpanel/php/cpanel.php') && getenv('CPANEL_PHPCONNECT_SOCKET')) {
+            try {
+                require_once '/usr/local/cpanel/php/cpanel.php';
+                $cpanel = new CPANEL();
+                register_shutdown_function(function() use ($cpanel) {
+                    try { $cpanel->end(); } catch (Throwable) {}
+                });
+            } catch (Throwable) {}
+        }
     }
 
     /**
