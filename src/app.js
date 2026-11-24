@@ -216,7 +216,9 @@ async function manageSqliteDirs() {
     $('#sd-add').onclick = () => addRow();
 }
 function layout() {
-    $('#app').innerHTML = `<div class="layout"><aside><div class="head"><span id="brand" class="brand-mark" style="cursor:pointer" title="Go to Home dashboard">${LOGO_SVG}<span>Fandejo</span></span><span>
+    const isSq = S.driver === 'sqlite';
+    $('#app').innerHTML = `<div class="layout"><aside><div class="head"><span id="brand" class="brand-mark" style="cursor:pointer" title="Go to Home dashboard">${LOGO_SVG}<span>Fandejo</span></span><span style="display:flex;align-items:center;gap:4px">
+      <button class="ghost" id="sw-engine" style="font-size:12px;font-weight:600;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card)" title="Switch between MariaDB/MySQL and SQLite3">${isSq ? '🗄️ SQLite' : '🐬 MySQL'}</button>
       <button class="ghost" id="theme" title="Toggle Dark / Light theme">◐</button><button class="ghost" id="out" title="Sign out">⏻</button></span></div>
       <input class="search" id="flt" placeholder="Filter…" value="${esc(S.filter)}"><div class="tree" id="tree"></div>
       <div style="padding:10px;display:flex;flex-direction:column;gap:8px"><button id="newdb" style="width:100%">+ New database</button>
@@ -224,6 +226,20 @@ function layout() {
       <main><div class="top"><div class="crumbs" id="crumbs"></div><button id="ghome">⌂ Home</button><button id="gusers">Users</button><button id="gsql">SQL</button></div><div id="tabs" class="tabs"></div><div class="content" id="content"></div></main></div>`;
     if ($('#s-lic')) $('#s-lic').onclick = e => { e.preventDefault(); showLicenseModal(); };
     $('#theme').onclick = () => { const r = document.documentElement; r.dataset.theme = r.dataset.theme === 'light' ? '' : 'light'; localStorage.theme = r.dataset.theme; };
+    $('#sw-engine').onclick = guard(async () => {
+        const nextDrv = S.driver === 'sqlite' ? 'mysql' : 'sqlite';
+        const res = await api('switch_driver', { driver: nextDrv });
+        if (res.ok) {
+            S.driver = res.driver;
+            S.db = null;
+            S.table = null;
+            S.dbs = [];
+            S.tables = {};
+            await loadDbs();
+            toast(`Switched to ${nextDrv === 'sqlite' ? 'SQLite3' : 'MariaDB / MySQL'}`);
+            layout();
+        }
+    });
     $('#out').onclick = async () => { await api('logout'); location.reload(); };
     $('#flt').oninput = e => { S.filter = e.target.value; tree(); $('#flt').focus(); };
     $('#newdb').onclick = promptNewDb;

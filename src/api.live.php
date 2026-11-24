@@ -1126,6 +1126,45 @@ if (!isset($_SESSION['c']['sealed_pass'])) {
     }
 }
 if ($a === 'logout') { clear_auth(); out(['ok' => true]); }
+if ($a === 'switch_driver') {
+    $targetDrv = ($in['driver'] ?? ($_GET['driver'] ?? '')) === 'sqlite' ? 'sqlite' : 'mysql';
+    if ($targetDrv === 'sqlite') {
+        $user = FandejoCpanelBridge::detectUser();
+        $c = [
+            'driver' => 'sqlite',
+            'host' => 'localhost',
+            'port' => 0,
+            'user' => $user,
+            'db' => '',
+            'sealed_pass' => seal_secret(''),
+            'fp' => session_fingerprint(),
+            'created_at' => time(),
+            'last_active' => time(),
+        ];
+        $_SESSION['c'] = $c;
+        out(['ok' => true, 'driver' => 'sqlite']);
+    } else {
+        $sso = FandejoCpanelBridge::attemptSocketSSO();
+        if ($sso !== null) {
+            $c = [
+                'driver' => 'mysql',
+                'host' => $sso['host'] ?? 'localhost',
+                'port' => (int)($sso['port'] ?? 3306),
+                'user' => $sso['user'],
+                'socket' => $sso['socket'] ?? null,
+                'db' => '',
+                'sealed_pass' => seal_secret($sso['pass'] ?? ''),
+                'fp' => session_fingerprint(),
+                'created_at' => time(),
+                'last_active' => time(),
+            ];
+            $_SESSION['c'] = $c;
+            out(['ok' => true, 'driver' => 'mysql']);
+        } else {
+            fail('MySQL SSO credentials unavailable', 400);
+        }
+    }
+}
 
 $cfg = fandejo_config();
 $now = time();
