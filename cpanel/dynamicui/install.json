@@ -2,6 +2,7 @@
   {
     "id": "fandejo",
     "feature": "fandejo",
+    "group_id": "databases",
     "group": "databases",
     "order": 25,
     "uri": "3rdparty/fandejo/index.live.php",
