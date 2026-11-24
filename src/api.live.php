@@ -1031,12 +1031,12 @@ if ($a === 'session') {
         if ($sso !== null) {
             $c = [
                 'driver' => 'mysql',
-                'host' => 'localhost',
-                'port' => 3306,
+                'host' => $sso['host'] ?? 'localhost',
+                'port' => (int)($sso['port'] ?? 3306),
                 'user' => $sso['user'],
-                'socket' => $sso['socket'],
+                'socket' => $sso['socket'] ?? null,
                 'db' => '',
-                'sealed_pass' => seal_secret(''),
+                'sealed_pass' => seal_secret($sso['pass'] ?? ''),
                 'fp' => session_fingerprint(),
                 'created_at' => time(),
                 'last_active' => time(),
@@ -1109,12 +1109,12 @@ if (!isset($_SESSION['c']['sealed_pass'])) {
     if ($sso !== null) {
         $c = [
             'driver' => 'mysql',
-            'host' => 'localhost',
-            'port' => 3306,
+            'host' => $sso['host'] ?? 'localhost',
+            'port' => (int)($sso['port'] ?? 3306),
             'user' => $sso['user'],
-            'socket' => $sso['socket'],
+            'socket' => $sso['socket'] ?? null,
             'db' => '',
-            'sealed_pass' => seal_secret(''),
+            'sealed_pass' => seal_secret($sso['pass'] ?? ''),
             'fp' => session_fingerprint(),
             'created_at' => time(),
             'last_active' => time(),

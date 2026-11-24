@@ -132,6 +132,13 @@ class FandejoCpanelBridge {
      * Attempt Single Sign-On (SSO) for MariaDB/MySQL.
      * Checks local Unix domain socket authentication.
      */
+    /**
+     * Attempt Single Sign-On (SSO) for MariaDB/MySQL.
+     * Checks:
+     * 1. cPanel LiveAPI dynamic environment credentials (REMOTE_PASSWORD / REMOTE_DBOWNER)
+     * 2. Tenant ~/.my.cnf credentials
+     * 3. Local Unix domain socket passwordless auth
+     */
     public static function attemptSocketSSO(): ?array {
         $user = self::detectUser();
         if ($user === 'nobody' || $user === 'root') {
@@ -152,11 +159,62 @@ class FandejoCpanelBridge {
             }
         }
 
+        // 1. Check cPanel LiveAPI dynamic credentials from environment
+        $remotePass = getenv('REMOTE_PASSWORD') ?: ($_SERVER['REMOTE_PASSWORD'] ?? null) ?: ($_ENV['REMOTE_PASSWORD'] ?? null);
+        $dbUser = getenv('REMOTE_DBOWNER') ?: ($_SERVER['REMOTE_DBOWNER'] ?? null) ?: ($_ENV['REMOTE_DBOWNER'] ?? null) ?: $user;
+
+        if (!empty($remotePass) && is_string($remotePass)) {
+            try {
+                $dsn = $sockPath ? "mysql:unix_socket={$sockPath}" : "mysql:host=localhost;port=3306";
+                $pdo = new PDO($dsn, $dbUser, $remotePass, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_TIMEOUT => 2,
+                ]);
+
+                return [
+                    'driver' => 'mysql',
+                    'user' => $dbUser,
+                    'pass' => $remotePass,
+                    'socket' => $sockPath,
+                    'host' => 'localhost',
+                    'port' => 3306,
+                    'sso' => true,
+                ];
+            } catch (Throwable) {}
+        }
+
+        // 2. Check tenant ~/.my.cnf credentials
+        $myCnf = (self::$homeDir ?: ('/home/' . $user)) . '/.my.cnf';
+        if (is_readable($myCnf)) {
+            $parsed = @parse_ini_file($myCnf, true);
+            $cnfUser = $parsed['client']['user'] ?? ($parsed['mysql']['user'] ?? null);
+            $cnfPass = $parsed['client']['password'] ?? ($parsed['mysql']['password'] ?? null);
+            if (!empty($cnfUser) && !empty($cnfPass)) {
+                try {
+                    $dsn = $sockPath ? "mysql:unix_socket={$sockPath}" : "mysql:host=localhost;port=3306";
+                    $pdo = new PDO($dsn, $cnfUser, $cnfPass, [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_TIMEOUT => 2,
+                    ]);
+
+                    return [
+                        'driver' => 'mysql',
+                        'user' => $cnfUser,
+                        'pass' => $cnfPass,
+                        'socket' => $sockPath,
+                        'host' => 'localhost',
+                        'port' => 3306,
+                        'sso' => true,
+                    ];
+                } catch (Throwable) {}
+            }
+        }
+
         if (!$sockPath) {
             return null;
         }
 
-        // Test passwordless connection via Unix domain socket
+        // 3. Test passwordless connection via Unix domain socket
         try {
             $dsn = "mysql:unix_socket={$sockPath}";
             $pdo = new PDO($dsn, $user, '', [
@@ -167,8 +225,11 @@ class FandejoCpanelBridge {
             return [
                 'driver' => 'mysql',
                 'user' => $user,
+                'pass' => '',
                 'socket' => $sockPath,
                 'host' => 'localhost',
+                'port' => 3306,
+                'sso' => true,
             ];
         } catch (Throwable) {
             // Passwordless socket auth not enabled for this user; user will use standard login prompt
