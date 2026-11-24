@@ -24,13 +24,17 @@ sandboxing, and WHM Feature Manager management.
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/local/cpanel/base/frontend/jupiter/fandejo
+mkdir -p %{buildroot}/usr/local/cpanel/base/3rdparty/fandejo
+mkdir -p %{buildroot}/usr/local/cpanel/base/frontend/jupiter
 mkdir -p %{buildroot}/var/cpanel/apps
 mkdir -p %{buildroot}/var/cpanel/features
 
 # Install runtime web files
-cp -r %{_sourcedir}/src/* %{buildroot}/usr/local/cpanel/base/frontend/jupiter/fandejo/
-cp %{_sourcedir}/cpanel/dynamicui/fandejo.svg %{buildroot}/usr/local/cpanel/base/frontend/jupiter/fandejo/
+cp -r %{_sourcedir}/src/* %{buildroot}/usr/local/cpanel/base/3rdparty/fandejo/
+cp %{_sourcedir}/cpanel/dynamicui/fandejo.svg %{buildroot}/usr/local/cpanel/base/3rdparty/fandejo/
+
+# Symlink to Jupiter frontend directory
+ln -sfn /usr/local/cpanel/base/3rdparty/fandejo %{buildroot}/usr/local/cpanel/base/frontend/jupiter/fandejo
 
 # Install AppConfig configuration
 install -m 0644 %{_sourcedir}/cpanel/appconfig/fandejo.conf %{buildroot}/var/cpanel/apps/fandejo.conf
@@ -74,6 +78,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
+/usr/local/cpanel/base/3rdparty/fandejo
 /usr/local/cpanel/base/frontend/jupiter/fandejo
 /var/cpanel/apps/fandejo.conf
 /var/cpanel/features/fandejo

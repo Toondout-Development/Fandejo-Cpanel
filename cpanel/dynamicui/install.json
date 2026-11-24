@@ -4,7 +4,7 @@
     "feature": "fandejo",
     "group": "databases",
     "order": 25,
-    "uri": "fandejo/index.live.php",
+    "uri": "3rdparty/fandejo/index.live.php",
     "type": "link",
     "icon": "fandejo.svg",
     "name": "Fandejo",

@@ -32,13 +32,17 @@ if [[ ! -d "/usr/local/cpanel" ]]; then
     exit 1
 fi
 
-DEST_DIR="/usr/local/cpanel/base/frontend/jupiter/fandejo"
+DEST_DIR="/usr/local/cpanel/base/3rdparty/fandejo"
 echo -e "${YELLOW}[1/6] Deploying plugin files to ${DEST_DIR}...${NC}"
 mkdir -p "${DEST_DIR}"
 
 # Copy runtime files
 cp -r "${REPO_ROOT}/src/"* "${DEST_DIR}/"
 cp "${REPO_ROOT}/cpanel/dynamicui/fandejo.svg" "${DEST_DIR}/"
+
+# Also link into Jupiter frontend directory
+mkdir -p /usr/local/cpanel/base/frontend/jupiter
+ln -sfn "${DEST_DIR}" /usr/local/cpanel/base/frontend/jupiter/fandejo
 
 # Set strict, secure permissions
 chown -R root:root "${DEST_DIR}"

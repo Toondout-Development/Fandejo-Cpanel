@@ -38,6 +38,7 @@ echo -e "${YELLOW}[3/5] Removing WHM Feature Manager flag...${NC}"
 rm -f /var/cpanel/features/fandejo
 
 echo -e "${YELLOW}[4/5] Removing plugin files...${NC}"
+rm -rf /usr/local/cpanel/base/3rdparty/fandejo
 rm -rf /usr/local/cpanel/base/frontend/jupiter/fandejo
 
 echo -e "${YELLOW}[5/5] Refreshing caches and CageFS...${NC}"
