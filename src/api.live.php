@@ -46,28 +46,53 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 function out($data, int $code = 200): never { http_response_code($code); echo json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE | JSON_PARTIAL_OUTPUT_ON_ERROR); exit; }
 function fail(string $m, int $code = 400): never { out(['error' => $m], $code); }
 
-/** Encrypt plaintext DB password using a split key stored only in an HttpOnly browser cookie. */
+/** Encrypt plaintext DB password using a split key stored only in an HttpOnly browser cookie. Uses libsodium if present, falls back to OpenSSL AES-256-GCM (e.g. for cPanel internal PHP builds without ext-sodium). */
 function seal_secret(string $plain): string {
     global $isHttps, $cookiePath;
-    $key = sodium_crypto_secretbox_keygen();
-    $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-    $cipher = sodium_crypto_secretbox($plain, $nonce, $key);
-    $hexKey = sodium_bin2hex($key);
+    if (function_exists('sodium_crypto_secretbox_keygen')) {
+        $key = sodium_crypto_secretbox_keygen();
+        $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+        $cipher = sodium_crypto_secretbox($plain, $nonce, $key);
+        $hexKey = sodium_bin2hex($key);
+        setcookie('fandejo_key', $hexKey, ['expires' => 0, 'path' => $cookiePath, 'secure' => $isHttps, 'httponly' => true, 'samesite' => 'Strict']);
+        $_COOKIE['fandejo_key'] = $hexKey;
+        return 's:' . sodium_bin2hex($nonce . $cipher);
+    }
+    // OpenSSL AES-256-GCM fallback
+    $key = random_bytes(32);
+    $iv = random_bytes(12);
+    $tag = '';
+    $cipher = openssl_encrypt($plain, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
+    $hexKey = bin2hex($key);
     setcookie('fandejo_key', $hexKey, ['expires' => 0, 'path' => $cookiePath, 'secure' => $isHttps, 'httponly' => true, 'samesite' => 'Strict']);
     $_COOKIE['fandejo_key'] = $hexKey;
-    return sodium_bin2hex($nonce . $cipher);
+    return 'g:' . bin2hex($iv . $tag . $cipher);
 }
 function open_secret(string $sealed): ?string {
     $hexKey = $_COOKIE['fandejo_key'] ?? ($_COOKIE['typhon_key'] ?? '');
-    if (strlen($hexKey) !== SODIUM_CRYPTO_SECRETBOX_KEYBYTES * 2 || $sealed === '') return null;
+    if ($sealed === '' || empty($hexKey)) return null;
     try {
-        $raw = sodium_hex2bin($sealed);
-        $key = sodium_hex2bin($hexKey);
-        if (strlen($raw) < SODIUM_CRYPTO_SECRETBOX_NONCEBYTES + SODIUM_CRYPTO_SECRETBOX_MACBYTES) return null;
-        $nonce = substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $cipher = substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $plain = sodium_crypto_secretbox_open($cipher, $nonce, $key);
-        return $plain === false ? null : $plain;
+        if (str_starts_with($sealed, 'g:')) {
+            $raw = hex2bin(substr($sealed, 2));
+            $key = hex2bin($hexKey);
+            if (strlen($raw) < 28 || strlen($key) !== 32) return null; // 12 iv + 16 tag
+            $iv = substr($raw, 0, 12);
+            $tag = substr($raw, 12, 16);
+            $cipher = substr($raw, 28);
+            $plain = openssl_decrypt($cipher, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
+            return $plain === false ? null : $plain;
+        }
+        $payload = str_starts_with($sealed, 's:') ? substr($sealed, 2) : $sealed;
+        if (function_exists('sodium_hex2bin')) {
+            $raw = sodium_hex2bin($payload);
+            $key = sodium_hex2bin($hexKey);
+            if (strlen($raw) < SODIUM_CRYPTO_SECRETBOX_NONCEBYTES + SODIUM_CRYPTO_SECRETBOX_MACBYTES) return null;
+            $nonce = substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+            $cipher = substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+            $plain = sodium_crypto_secretbox_open($cipher, $nonce, $key);
+            return $plain === false ? null : $plain;
+        }
+        return null;
     } catch (Throwable) { return null; }
 }
 function clear_auth(): void {
