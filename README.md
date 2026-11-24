@@ -36,7 +36,7 @@ This plugin seamlessly embeds Fandejo into the **cPanel (Jupiter theme)** interf
 ## Quick Installation (on cPanel & WHM Server)
 
 ```bash
-git clone ssh://forgejo@forgejo.toondout.com/bholland/Fandejo-CPanel.git /usr/local/src/fandejo-cpanel
+git clone https://github.com/Toondout-Development/Fandejo-Cpanel.git /usr/local/src/fandejo-cpanel
 cd /usr/local/src/fandejo-cpanel
 sudo ./scripts/install.sh
 ```

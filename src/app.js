@@ -42,9 +42,9 @@ const S = { version: 'v1.0.2', driver: null, user: null, dbs: [], tables: {}, me
 function showLicenseModal() {
     modal(`<div style="width:min(580px,85vw)"><h3>Fandejo ${esc(S.version)} — License & Attribution</h3>
       <div class="doc-body" style="font-size:13px;color:var(--mute)">
-        <p style="color:var(--text)"><b>Copyright © 2026 <a href="https://www.toondout.com" target="_blank" rel="noopener" style="color:var(--accent)">Toondout</a>.</b> Canonical repository: <a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener" style="color:var(--cyan)">github.com/Toondout-Development/Fandejo</a></p>
+        <p style="color:var(--text)"><b>Copyright © 2026 <a href="https://www.toondout.com" target="_blank" rel="noopener" style="color:var(--accent)">Toondout</a>.</b> Canonical repository: <a href="https://github.com/Toondout-Development/Fandejo-Cpanel" target="_blank" rel="noopener" style="color:var(--cyan)">github.com/Toondout-Development/Fandejo-Cpanel</a></p>
         <p><b>Free to Use:</b> Fandejo is free to download, install, and run for personal, educational, internal business, or commercial database administration.</p>
-        <p><b>Contributions Welcome:</b> Personal/internal forks and Pull Requests back to <a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener" style="color:var(--cyan)">Toondout-Development/Fandejo</a> are encouraged.</p>
+        <p><b>Contributions Welcome:</b> Personal/internal forks and Pull Requests back to <a href="https://github.com/Toondout-Development/Fandejo-Cpanel" target="_blank" rel="noopener" style="color:var(--cyan)">Toondout-Development/Fandejo-Cpanel</a> are encouraged.</p>
         <p><b>No Public Redistribution or Rebranding:</b> Redistributing modified or rebranded copies, or offering Fandejo as a third-party hosted service without prior written permission from Toondout, is prohibited. See the repository <code>LICENSE</code> file for full terms.</p>
       </div>
     </div>`, () => { });
@@ -145,7 +145,7 @@ function loginView(s = {}) {
     <label>Username<input name="user" value="${needSetup ? 'admin' : 'root'}" required></label>
     <label>Password<input name="pass" type="password" placeholder="${needSetup ? 'Min 6 characters for SQLite setup' : ''}"></label>
     <button class="primary" id="lbtn">Sign in</button>
-    <div class="brand-foot"><span>© 2026 <a href="https://www.toondout.com" target="_blank" rel="noopener">Toondout</a></span><span><a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener">GitHub</a> · <a href="#" id="l-lic">License</a></span></div></form></div>`;
+    <div class="brand-foot"><span>© 2026 <a href="https://www.toondout.com" target="_blank" rel="noopener">Toondout</a></span><span><a href="https://github.com/Toondout-Development/Fandejo-Cpanel" target="_blank" rel="noopener">GitHub</a> · <a href="#" id="l-lic">License</a></span></div></form></div>`;
     const lic = $('#l-lic');
     if (lic) lic.onclick = e => { e.preventDefault(); showLicenseModal(); };
     const f = $('#lf');
@@ -220,7 +220,7 @@ function layout() {
       <button class="ghost" id="theme" title="Toggle Dark / Light theme">◐</button><button class="ghost" id="out" title="Sign out">⏻</button></span></div>
       <input class="search" id="flt" placeholder="Filter…" value="${esc(S.filter)}"><div class="tree" id="tree"></div>
       <div style="padding:10px;display:flex;flex-direction:column;gap:8px"><button id="newdb" style="width:100%">+ New database</button>
-      <div class="brand-foot"><span>${esc(S.version)} · © <a href="https://www.toondout.com" target="_blank" rel="noopener">Toondout</a></span><span><a href="https://github.com/Toondout-Development/Fandejo" target="_blank" rel="noopener">GitHub</a> · <a href="#" id="s-lic">License</a></span></div></div></aside>
+      <div class="brand-foot"><span>${esc(S.version)} · © <a href="https://www.toondout.com" target="_blank" rel="noopener">Toondout</a></span><span><a href="https://github.com/Toondout-Development/Fandejo-Cpanel" target="_blank" rel="noopener">GitHub</a> · <a href="#" id="s-lic">License</a></span></div></div></aside>
       <main><div class="top"><div class="crumbs" id="crumbs"></div><button id="ghome">⌂ Home</button><button id="gusers">Users</button><button id="gsql">SQL</button></div><div id="tabs" class="tabs"></div><div class="content" id="content"></div></main></div>`;
     if ($('#s-lic')) $('#s-lic').onclick = e => { e.preventDefault(); showLicenseModal(); };
     $('#theme').onclick = () => { const r = document.documentElement; r.dataset.theme = r.dataset.theme === 'light' ? '' : 'light'; localStorage.theme = r.dataset.theme; };
