@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag or version to release (e.g. v1.0.0)'
+        required: false
+        default: 'v1.0.0'
 
 jobs:
   build-rpm:
@@ -36,7 +42,7 @@ jobs:
 
       - name: Create Tarball Distribution
         run: |
-          TAG_NAME="${GITHUB_REF_NAME}"
+          TAG_NAME="${{ inputs.tag_name || github.ref_name }}"
           VERSION="${TAG_NAME#v}"
           tar --transform "s,^,fandejo-cpanel-${VERSION}/," -czf "dist/fandejo-cpanel-${VERSION}.tar.gz" src/ cpanel/ scripts/ packaging/ LICENSE README.md
 
@@ -48,6 +54,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.tag_name || github.ref_name }}
           files: |
             dist/*
           generate_release_notes: true
