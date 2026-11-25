@@ -7,8 +7,8 @@ URL:            https://github.com/Toondout-Development/Fandejo-Cpanel
 Vendor:         Toondout <https://www.toondout.com>
 BuildArch:      noarch
 
-Requires:       cpanel
-Requires:       ea-php81-php-pdo || ea-php82-php-pdo || ea-php83-php-pdo || ea-php84-php-pdo || php-pdo
+Requires:       /bin/sh
+Requires:       /usr/bin/tar
 
 %description
 Fandejo is a fast, lightweight database administration workbench for
@@ -21,6 +21,13 @@ sandboxing, and WHM Feature Manager management.
 
 %build
 # Pure PHP/JS web application; no compilation required
+
+%pre
+# Verify target server has cPanel installed before proceeding
+if [ ! -d "/usr/local/cpanel" ]; then
+    echo "ERROR: /usr/local/cpanel not found. fandejo-cpanel requires a cPanel & WHM server." >&2
+    exit 1
+fi
 
 %install
 rm -rf %{buildroot}
