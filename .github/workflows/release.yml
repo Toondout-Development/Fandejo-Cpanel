@@ -1,0 +1,55 @@
+name: Release & Build RPM
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-rpm:
+    name: Build RPM & Release Assets
+    runs-on: ubuntu-latest
+    container:
+      image: almalinux:9
+
+    steps:
+      - name: Install Build Tools
+        run: |
+          dnf install -y rpm-build rpmdevtools git tar
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Prepare RPM Build Tree
+        run: |
+          mkdir -p /root/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+          cp -r src /root/rpmbuild/SOURCES/
+          cp -r cpanel /root/rpmbuild/SOURCES/
+          cp packaging/fandejo-cpanel.spec /root/rpmbuild/SPECS/
+
+      - name: Build RPM
+        run: |
+          rpmbuild -ba /root/rpmbuild/SPECS/fandejo-cpanel.spec
+          mkdir -p dist
+          cp /root/rpmbuild/RPMS/noarch/*.rpm dist/
+          cp /root/rpmbuild/SRPMS/*.src.rpm dist/
+
+      - name: Create Tarball Distribution
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          VERSION="${TAG_NAME#v}"
+          tar --transform "s,^,fandejo-cpanel-${VERSION}/," -czf "dist/fandejo-cpanel-${VERSION}.tar.gz" src/ cpanel/ scripts/ packaging/ LICENSE README.md
+
+      - name: Generate Checksums
+        run: |
+          cd dist
+          sha256sum * > SHA256SUMS
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
