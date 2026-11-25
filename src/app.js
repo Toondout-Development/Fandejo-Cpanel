@@ -287,13 +287,102 @@ const C = () => $('#content');
 async function tablesView() {
     const t = S.tables[S.db] || [], my = S.driver === 'mysql';
     const dbObj = S.dbs.find(d => d.name === S.db);
-    C().innerHTML = `<div class="bar">${my && dbObj?.collation ? `<span class="badge">Database Collation: <b>${esc(dbObj.collation)}</b></span><button class="ghost" id="edbc">Change…</button>` : ''}<span class="spacer"></span><button id="nv-btn">+ New View</button><button class="primary" id="nt-btn">+ New Table</button></div>
-      ${t.length ? `<div class="tw"><table><tr><th>Table / View</th><th>Type</th>${my ? '<th>Engine</th><th>Collation</th>' : ''}<th>Rows</th><th>Size</th><th></th></tr>${t.map(x => `<tr><td><a href="#" data-t="${esc(x.name)}" style="color:var(--accent)"><b>${x.type?.includes('VIEW') || x.type === 'view' ? '👁 ' : ''}${esc(x.name)}</b></a>${x.comment ? `<br><small style="color:var(--mute)">${esc(x.comment)}</small>` : ''}</td><td>${esc(x.type)}</td>${my ? `<td>${esc(x.engine ?? '–')}</td><td><small>${esc(x.collation ?? '–')}</small></td>` : ''}<td>${x.rows ?? '–'}</td><td>${fmtSize(x.size)}</td><td class="act"><button data-d="${esc(x.name)}" class="danger">Drop</button></td></tr>`).join('')}</table></div>` : '<div class="empty">No tables yet</div>'}`;
+    C().innerHTML = `<div class="bar">
+      ${my && dbObj?.collation ? `<span class="badge">Database Collation: <b>${esc(dbObj.collation)}</b></span><button class="ghost" id="edbc">Change…</button>` : ''}
+      <span class="spacer"></span>
+      <button id="nv-btn">+ New View</button>
+      <button class="primary" id="nt-btn">+ New Table</button>
+    </div>
+    ${t.length ? `
+      <div id="bulk-bar" class="bar" style="display:none;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:12px">
+        <span id="bulk-count" style="font-weight:600;color:var(--accent)">0 selected</span>
+        <span class="spacer"></span>
+        <button id="bulk-trunc" class="ghost">Empty / Truncate Selected</button>
+        <button id="bulk-drop" class="danger">Drop Selected</button>
+      </div>
+      <div class="tw">
+        <table>
+          <tr>
+            <th style="width:36px;text-align:center"><input type="checkbox" id="th-chk" title="Select all tables"></th>
+            <th>Table / View</th>
+            <th>Type</th>
+            ${my ? '<th>Engine</th><th>Collation</th>' : ''}
+            <th>Rows</th>
+            <th>Size</th>
+            <th></th>
+          </tr>
+          ${t.map(x => `<tr>
+            <td style="text-align:center"><input type="checkbox" class="tb-chk" data-name="${esc(x.name)}"></td>
+            <td><a href="#" data-t="${esc(x.name)}" style="color:var(--accent)"><b>${x.type?.includes('VIEW') || x.type === 'view' ? '👁 ' : ''}${esc(x.name)}</b></a>${x.comment ? `<br><small style="color:var(--mute)">${esc(x.comment)}</small>` : ''}</td>
+            <td>${esc(x.type)}</td>
+            ${my ? `<td>${esc(x.engine ?? '–')}</td><td><small>${esc(x.collation ?? '–')}</small></td>` : ''}
+            <td>${x.rows ?? '–'}</td>
+            <td>${fmtSize(x.size)}</td>
+            <td class="act"><button data-d="${esc(x.name)}" class="danger">Drop</button></td>
+          </tr>`).join('')}
+        </table>
+      </div>` : '<div class="empty">No tables yet</div>'}`;
+
     if ($('#edbc')) $('#edbc').onclick = () => { S.tab = 'dropdb'; render(); };
     if ($('#nt-btn')) $('#nt-btn').onclick = () => { S.tab = 'newtable'; render(); };
     if ($('#nv-btn')) $('#nv-btn').onclick = () => viewEditor();
     C().querySelectorAll('[data-t]').forEach(a => a.onclick = e => { e.preventDefault(); S.fkBack = []; S.table = a.dataset.t; S.tab = 'browse'; S.browse = { ...S.browse, page: 1, sort: '', search: '', filters: [], showFilterBar: false }; render(); });
     C().querySelectorAll('[data-d]').forEach(b => b.onclick = () => confirmDo(`Drop ${b.dataset.d}?`, async () => { await api('drop_table', { db: S.db, table: b.dataset.d }); await loadTables(S.db); render(); }));
+
+    // Bulk selection logic
+    const masterChk = $('#th-chk');
+    const rowChks = C().querySelectorAll('.tb-chk');
+    const bulkBar = $('#bulk-bar');
+    const bulkCount = $('#bulk-count');
+
+    const updateBulkBar = () => {
+        if (!bulkBar) return;
+        const selected = Array.from(rowChks).filter(c => c.checked).map(c => c.dataset.name);
+        if (selected.length > 0) {
+            bulkBar.style.display = 'flex';
+            bulkCount.textContent = `${selected.length} table${selected.length === 1 ? '' : 's'} selected`;
+        } else {
+            bulkBar.style.display = 'none';
+        }
+        if (masterChk) {
+            masterChk.checked = rowChks.length > 0 && selected.length === rowChks.length;
+            masterChk.indeterminate = selected.length > 0 && selected.length < rowChks.length;
+        }
+    };
+
+    if (masterChk) {
+        masterChk.onchange = () => {
+            rowChks.forEach(c => c.checked = masterChk.checked);
+            updateBulkBar();
+        };
+    }
+    rowChks.forEach(c => c.onchange = updateBulkBar);
+
+    if ($('#bulk-drop')) {
+        $('#bulk-drop').onclick = () => {
+            const selected = Array.from(rowChks).filter(c => c.checked).map(c => c.dataset.name);
+            if (!selected.length) return;
+            confirmDo(`Permanently drop ${selected.length} selected table(s)?\n\n${selected.join(', ')}`, async () => {
+                await api('bulk_table_op', { db: S.db, op: 'drop', tables: selected });
+                toast(`Dropped ${selected.length} table(s)`);
+                await loadTables(S.db);
+                render();
+            });
+        };
+    }
+
+    if ($('#bulk-trunc')) {
+        $('#bulk-trunc').onclick = () => {
+            const selected = Array.from(rowChks).filter(c => c.checked).map(c => c.dataset.name);
+            if (!selected.length) return;
+            confirmDo(`Delete ALL rows from ${selected.length} selected table(s)?\n\n${selected.join(', ')}`, async () => {
+                await api('bulk_table_op', { db: S.db, op: 'truncate', tables: selected });
+                toast(`Emptied ${selected.length} table(s)`);
+                await loadTables(S.db);
+                render();
+            });
+        };
+    }
 }
 
 const FILTER_OPS = [

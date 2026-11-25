@@ -1926,6 +1926,94 @@ try {
         $p->exec('DROP ' . ($isV ? 'VIEW ' : 'TABLE ') . $T);
         out(['ok' => true]);
 
+    case 'bulk_table_op':
+        $op = strtolower(trim((string)($in['op'] ?? '')));
+        $rawTables = $in['tables'] ?? [];
+        if (!is_array($rawTables) || empty($rawTables)) fail('No tables specified', 400);
+        if (!in_array($op, ['drop', 'truncate'], true)) fail('Invalid bulk operation', 400);
+
+        if ($drv === 'mysql') {
+            $p->exec('SET FOREIGN_KEY_CHECKS = 0');
+            try {
+                $allTypes = [];
+                foreach (rows($p, "SELECT TABLE_NAME name, TABLE_TYPE type FROM information_schema.TABLES WHERE TABLE_SCHEMA = ?", [$db]) as $row) {
+                    $allTypes[$row['name']] = stripos((string)$row['type'], 'VIEW') !== false ? 'VIEW' : 'TABLE';
+                }
+                foreach ($rawTables as $tName) {
+                    $tName = (string)$tName;
+                    $target = q((string)$db, $drv) . '.' . q($tName, $drv);
+                    $type = $allTypes[$tName] ?? 'TABLE';
+                    if ($op === 'drop') {
+                        $p->exec("DROP $type IF EXISTS $target");
+                    } else {
+                        if ($type !== 'VIEW') $p->exec("TRUNCATE TABLE $target");
+                    }
+                }
+            } finally {
+                $p->exec('SET FOREIGN_KEY_CHECKS = 1');
+            }
+        } else {
+            $p->exec('PRAGMA foreign_keys = OFF');
+            try {
+                $p->beginTransaction();
+                foreach ($rawTables as $tName) {
+                    $tName = (string)$tName;
+                    $isV = strtolower((string)$p->query("SELECT type FROM sqlite_master WHERE name=" . $p->quote($tName))->fetchColumn()) === 'view';
+                    if ($op === 'drop') {
+                        $p->exec('DROP ' . ($isV ? 'VIEW IF EXISTS ' : 'TABLE IF EXISTS ') . q($tName, $drv));
+                    } else {
+                        if (!$isV) {
+                            $p->exec('DELETE FROM ' . q($tName, $drv));
+                            try { $p->exec('DELETE FROM sqlite_sequence WHERE name=' . $p->quote($tName)); } catch (Throwable) {}
+                        }
+                    }
+                }
+                $p->commit();
+            } catch (Throwable $e) {
+                if ($p->inTransaction()) $p->rollBack();
+                $p->exec('PRAGMA foreign_keys = ON');
+                throw $e;
+            }
+            $p->exec('PRAGMA foreign_keys = ON');
+        }
+        out(['ok' => true, 'count' => count($rawTables)]);
+
+    case 'empty_db':
+        $dropped = 0;
+        if ($drv === 'mysql') {
+            $p->exec('SET FOREIGN_KEY_CHECKS = 0');
+            try {
+                $items = rows($p, "SELECT TABLE_NAME name, TABLE_TYPE type FROM information_schema.TABLES WHERE TABLE_SCHEMA = ?", [$db]);
+                foreach ($items as $item) {
+                    $isView = stripos((string)$item['type'], 'VIEW') !== false;
+                    $target = q((string)$db, $drv) . '.' . q($item['name'], $drv);
+                    $p->exec('DROP ' . ($isView ? 'VIEW IF EXISTS ' : 'TABLE IF EXISTS ') . $target);
+                    $dropped++;
+                }
+            } finally {
+                $p->exec('SET FOREIGN_KEY_CHECKS = 1');
+            }
+        } else {
+            $p->exec('PRAGMA foreign_keys = OFF');
+            try {
+                $items = rows($p, "SELECT name, type FROM sqlite_master WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%'");
+                $p->beginTransaction();
+                foreach ($items as $item) {
+                    $isView = strtolower((string)$item['type']) === 'view';
+                    $p->exec('DROP ' . ($isView ? 'VIEW IF EXISTS ' : 'TABLE IF EXISTS ') . q($item['name'], $drv));
+                    $dropped++;
+                }
+                try { $p->exec('DELETE FROM sqlite_sequence'); } catch (Throwable) {}
+                $p->commit();
+            } catch (Throwable $e) {
+                if ($p->inTransaction()) $p->rollBack();
+                $p->exec('PRAGMA foreign_keys = ON');
+                throw $e;
+            }
+            $p->exec('PRAGMA foreign_keys = ON');
+        }
+        out(['ok' => true, 'dropped_tables' => $dropped]);
+
     case 'truncate':
         if ($drv === 'mysql') {
             $p->exec("TRUNCATE TABLE $T");
