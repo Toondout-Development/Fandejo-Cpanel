@@ -127,6 +127,7 @@ fi
 %defattr(-,root,root,-)
 /usr/local/cpanel/base/3rdparty/fandejo
 /usr/local/cpanel/base/frontend/jupiter/fandejo
+/usr/local/cpanel/base/frontend/jupiter/assets/application_icons/fandejo.svg
 /var/cpanel/apps/fandejo.conf
 /var/cpanel/features/fandejo
 
