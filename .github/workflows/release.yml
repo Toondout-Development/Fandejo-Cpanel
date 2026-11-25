@@ -15,6 +15,8 @@ jobs:
   build-rpm:
     name: Build RPM & Release Assets
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     container:
       image: almalinux:9
 
@@ -28,17 +30,17 @@ jobs:
 
       - name: Prepare RPM Build Tree
         run: |
-          mkdir -p /root/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-          cp -r src /root/rpmbuild/SOURCES/
-          cp -r cpanel /root/rpmbuild/SOURCES/
-          cp packaging/fandejo-cpanel.spec /root/rpmbuild/SPECS/
+          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+          cp -r src ~/rpmbuild/SOURCES/
+          cp -r cpanel ~/rpmbuild/SOURCES/
+          cp packaging/fandejo-cpanel.spec ~/rpmbuild/SPECS/
 
       - name: Build RPM
         run: |
-          rpmbuild -ba /root/rpmbuild/SPECS/fandejo-cpanel.spec
+          rpmbuild -ba ~/rpmbuild/SPECS/fandejo-cpanel.spec
           mkdir -p dist
-          cp /root/rpmbuild/RPMS/noarch/*.rpm dist/
-          cp /root/rpmbuild/SRPMS/*.src.rpm dist/
+          cp ~/rpmbuild/RPMS/noarch/*.rpm dist/
+          cp ~/rpmbuild/SRPMS/*.src.rpm dist/
 
       - name: Create Tarball Distribution
         run: |
